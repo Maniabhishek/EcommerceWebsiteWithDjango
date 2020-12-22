@@ -7,19 +7,37 @@ from django.contrib import messages
 from .models import Item , OrderItem , Order
 from django.shortcuts import redirect
 from django.utils import timezone
+from . forms import CheckoutForm
 # def item_list(request):
 #     context = {
 #         'items': Item.objects.all()
 #     }
 #     return render(request,"home-page.html",context)
 
-def checkout(request):
-    context = {
-        'items':Item.objects.all(),
-        'orderItem': OrderItem.objects.all(),
-        'order': Order.objects.all(),
-    }
-    return render(request , "checkout.html",context)
+class CheckoutView(View):
+    def get(self,*args , **kwargs):
+        form = CheckoutForm()
+        print("abhishek")
+        print(self.request.get_full_path)
+        context = {
+            'form':form
+        }
+
+        return render(self.request , "checkout.html",context)
+    def post(self , *args , **kwargs):
+        print("post ,method")
+        form = CheckoutForm(self.request.POST)
+        print(self.request.POST)
+        if form.is_valid():
+            # print(f'cleaned data = {form.cleaned_data}')
+            print("form is valid")
+            # messages.warning(self.request,"Failed Checkout")
+            
+            return redirect('core:checkout')
+        print("post method final return")
+        messages.warning(self.request,"Failed Checkout")
+        return redirect('core:checkout')
+
 
 
 class OrderSummaryView(LoginRequiredMixin,View):
