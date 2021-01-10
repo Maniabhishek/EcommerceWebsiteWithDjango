@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-
+    
+ 
     <title>{% block head_title %}{% endblock %}</title>
     {% block extra_head %}
     {% endblock %}
@@ -20,10 +21,11 @@
     <!-- Your custom styles (optional) -->
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet">
 </head>
-{% include "navbar.html" %}
 
 
-<body>
+
+<body style="background-color:rgb(18,18,18)">
+    {% include "navbar.html" %}
     <div class="pt-4 mt-5">
         {% if messages %}
 

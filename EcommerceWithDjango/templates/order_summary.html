@@ -5,37 +5,37 @@
     <div class="container">
         <div class="table-responsive text-nowrap">
 
-            <table class="table">
+            <table class="table" >
               <thead>
                 <tr>
-                    <th scope="col">#</th>
-                  <th scope="col">Item Title</th>
-                  <th scope="col">Price</th>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">Total Item Price</th>
+                    <th style="color: white;" scope="col">#</th>
+                  <th  style="color: white;" scope="col">Item Title</th>
+                  <th style="color: white;" scope="col">Price</th>
+                  <th style="color: white;" scope="col">Quantity</th>
+                  <th style="color: white;" scope="col">Total Item Price</th>
                 </tr>
               </thead>
               <tbody>
                   {% for order_item in object.items.all %}
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{order_item.item.title}}</td>
-                  <td>{{order_item.item.price}}</td>
-                  <td><a href="{%  url 'core:removing-single-item' order_item.item.slug %}"><i class="fas fa-minus mr-2"></i></a>
+                  <th style="color: white;" scope="row">{{forloop.counter}}</th>
+                  <td style="color: white;">{{order_item.item.title}}</td>
+                  <td style="color: white;">{{order_item.item.price}}</td>
+                  <td style="color: white;"><a href="{%  url 'core:removing-single-item' order_item.item.slug %}"><i style="color: white;" class="fas fa-minus mr-2"></i></a>
                     {{order_item.quantity}} 
-                    <a href="{%  url 'core:add-to-cart' order_item.item.slug %}"> <i class="fas fa-plus ml-2"></i></a></td>
-                  <td>
+                    <a href="{%  url 'core:add-to-cart' order_item.item.slug %}"> <i style="color: white;" class="fas fa-plus ml-2"></i></a></td>
+                  <td  style="color: white;">
                     {% if order_item.item.discount_price %}
                         ${{ order_item.get_total_discount_price }} <span class="badge badge-primary"> (Saving : {{order_item.get_total_saving_price}})</span>
                     {% else %}
                         ${{ order_item.get_total_item_price }}({{order_item.get_total_discount_price}})
                     {% endif %}
                   </td>
-                  <td><a href="{% url 'core:remove-from-cart' order_item.item.slug %}"><i class="fas fa-trash-alt"></i></a></td>
+                  <td style="color: white;"><a href="{% url 'core:remove-from-cart' order_item.item.slug %}"><i style="color: white;" class="fas fa-trash-alt"></i></a></td>
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="5" > Your cart is empty </td>
+                  <td style="color: white;" colspan="5" > Your cart is empty </td>
                   
                 </tr>
                 <tr>
@@ -46,8 +46,8 @@
                 {% endfor %}
                 {% if object.get_total %}
                 <tr>
-                  <td colspan="4"><b> Order Total</b> </td>
-                  <td>{{object.get_total}}</td>
+                  <td style="color: white;" colspan="4"><b> Order Total</b> </td>
+                  <td style="color: white;">{{object.get_total}}</td>
                 </tr>
                 <tr>
                   <td colspan="4" > <a href="/checkout/" class="btn btn-warning float-right ml-2"> Proceed to Checkout </a>

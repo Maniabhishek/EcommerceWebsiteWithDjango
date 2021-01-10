@@ -1,9 +1,9 @@
 from .base import *
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-INSTALLED_APPS += ['debug_toolbar',]
+INSTALLED_APPS += ['debug_toolbar', ]
 
 MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -28,8 +28,10 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
 ]
 
+
 def show_toolbar(request):
     return True
+
 
 # DEBUG_TOOLBAR_CONIG = {
 #     'INTERCEPT_REDIRECTS': False,
