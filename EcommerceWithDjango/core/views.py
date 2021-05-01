@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from .models import Item, OrderItem, Order, BillingAddress, Payment
+from .models import Coupon, Item, OrderItem, Order, BillingAddress, Payment
 from django.shortcuts import redirect
 from django.utils import timezone
 from . forms import CheckoutForm
@@ -36,6 +36,7 @@ def CheckoutView(request):
                 # same_shipping_address = form.cleaned_data.get('same_shipping_address')
                 # save_info = form.cleaned_data.get('save_info')
                 paymentOption = form.cleaned_data.get('paymentOption')
+                print("payment option is==========", paymentOption)
                 billingAddress = BillingAddress(
                     user=request.user,
                     streetAddress=streetAddress,
@@ -49,7 +50,14 @@ def CheckoutView(request):
                 order.save()
                 # TODO: add redirect to the selected payment option
                 print("form is valid")
-                return redirect('core:payment')
+                if paymentOption == 'S':
+                    return redirect('core:payment')
+                elif paymentOption == 'P':
+                    return redirect('core:payment')
+                else:
+                    messages.warning(
+                        request, "Invalid payment option selected")
+                    return redirect('core:checkout')
 
         except ObjectDoesNotExist:
             messages.error(request, "You do not have an active order")
@@ -57,10 +65,13 @@ def CheckoutView(request):
         # print(request.POST)
 
     else:
+        order = Order.objects.get(user=request.user, ordered=False)
         form = CheckoutForm()
         print("get method")
         context = {
-            'form': form
+            'form': form,
+            'order': order
+
         }
         return render(request, "checkout.html", context)
 
@@ -99,7 +110,7 @@ def PaymentView(request):
 
         token = request.POST.get('stripeToken')
         amount = int(order.get_total() * 100)
-
+        print("totalm amountis here ======", amount)
         try:
             charge = stripe.Charge.create(
                 amount=amount,  # cents
@@ -113,9 +124,13 @@ def PaymentView(request):
             payment.stripe_charge_id = charge['id']
             payment.user = request.user
             payment.amount = order.get_total()
+            print(order.get_total())
             payment.save()
             # assign the payment to the order
-
+            order_item = order.items.all()
+            order_item.update(ordered=True)
+            for item in order_item:
+                item.save()
             order.ordered = True
             order.payment = payment
             order.save()
@@ -159,7 +174,11 @@ def PaymentView(request):
             return redirect("/")
 
     else:
-        return render(request, 'payment.html')
+        order = Order.objects.get(user=request.user, ordered=False)
+        context = {
+            'order': order
+        }
+        return render(request, 'payment.html', context)
 
         # `source` is obtained with Stripe.js; see https://stripe.com/docs/payments/accept-a-payment-charges#web-create-token
 
@@ -167,6 +186,7 @@ def PaymentView(request):
 class OrderSummaryView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
+            print("in order summary ")
             order = Order.objects.get(user=self.request.user, ordered=False)
             context = {'object': order}
             return render(self.request, 'order_summary.html', context)
@@ -197,6 +217,7 @@ class ItemDetailView(DetailView):
 
 @login_required
 def add_to_cart(request, slug):
+    print("add to cart running?")
     item = get_object_or_404(Item, slug=slug)
     order_item, created = OrderItem.objects.get_or_create(
         item=item, user=request.user, ordered=False)
@@ -208,8 +229,10 @@ def add_to_cart(request, slug):
             order_item.quantity += 1
             order_item.save()
             messages.info(request, "This item quantity was updated")
+            return redirect("core:orderSummary")
 
         else:
+
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart")
             return redirect("core:orderSummary")
@@ -279,3 +302,23 @@ def remove_single_item_from_cart(request, slug):
 
         return redirect('core:orderSummary')
     return redirect('core:orderSummary')
+
+
+def get_coupon(request, code):
+    try:
+        coupon = Coupon.objects.get(code=code)
+        return coupon
+    except ObjectDoesNotExist:
+        messages.info(request, "This coupon does not exist")
+        return redirect("core:checkout")
+
+
+def add_coupon(request, code):
+    try:
+        order = Order.objects.get(user=request.user, ordered=False)
+        coupon = get_coupon(request, code)
+        order.coupon = coupon
+        order.save()
+        messages.info(request, "Successfully applied coupon")
+    except ObjectDoesNotExist:
+        messages.info(request, "You do not have the active orders")
