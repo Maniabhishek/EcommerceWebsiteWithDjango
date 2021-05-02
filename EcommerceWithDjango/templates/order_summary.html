@@ -43,7 +43,14 @@
                     <a class="btn btn-primary float-right" href="/">Continue Shopping</a> 
                   </td>
                 </tr>
-                {% endfor %}
+                {% endfor %}  
+                {% if object.coupon %}
+                <tr>
+                  <td style="color: white;" colspan="4" > Use coupon {{object.coupon.code}}</td>
+                  <td style="color: white;"  >{{object.coupon.amount}}</td>
+                </tr>
+                {% endif %}
+
                 {% if object.get_total %}
                 <tr>
                   <td style="color: white;" colspan="4"><b> Order Total</b> </td>

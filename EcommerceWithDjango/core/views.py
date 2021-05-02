@@ -7,7 +7,7 @@ from django.contrib import messages
 from .models import Coupon, Item, OrderItem, Order, BillingAddress, Payment
 from django.shortcuts import redirect
 from django.utils import timezone
-from . forms import CheckoutForm
+from . forms import CheckoutForm, CouponForm
 from django.http import HttpResponseRedirect
 import stripe
 from django.conf import settings
@@ -21,7 +21,8 @@ stripe.api_key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
 #     return render(request,"home-page.html",context)
 def CheckoutView(request):
     if request.method == 'POST':
-        # print("post method")
+        print("post method")
+        print(request.POST)
         form = CheckoutForm(request.POST)
         try:
             order = Order.objects.get(user=request.user, ordered=False)
@@ -70,7 +71,9 @@ def CheckoutView(request):
         print("get method")
         context = {
             'form': form,
-            'order': order
+            'order': order,
+            'couponform': CouponForm(),
+            'DISPLAY_COUPON_FORM': True
 
         }
         return render(request, "checkout.html", context)
@@ -175,11 +178,17 @@ def PaymentView(request):
 
     else:
         order = Order.objects.get(user=request.user, ordered=False)
-        context = {
-            'order': order
-        }
-        return render(request, 'payment.html', context)
+        if order.billlingAddress:
+            context = {
+                'order': order,
+                'couponform': CouponForm(),
+                'DISPLAY_COUPON_FORM': False
 
+            }
+            return render(request, 'payment.html', context)
+        else:
+            messages.warning(request, "You do not have added billing address")
+            return redirect("core:checkout")
         # `source` is obtained with Stripe.js; see https://stripe.com/docs/payments/accept-a-payment-charges#web-create-token
 
 
@@ -313,12 +322,23 @@ def get_coupon(request, code):
         return redirect("core:checkout")
 
 
-def add_coupon(request, code):
-    try:
-        order = Order.objects.get(user=request.user, ordered=False)
-        coupon = get_coupon(request, code)
-        order.coupon = coupon
-        order.save()
-        messages.info(request, "Successfully applied coupon")
-    except ObjectDoesNotExist:
-        messages.info(request, "You do not have the active orders")
+def add_coupon(request):
+    if request.method == "POST":
+        print(request.POST['code'])
+        form = CouponForm(request.POST)
+        if form.is_valid():
+
+            try:
+                code = form.cleaned_data.get('code')
+                order = Order.objects.get(user=request.user, ordered=False)
+                coupon = get_coupon(request, code)
+                order.coupon = coupon
+                order.save()
+                messages.info(request, "Successfully applied coupon")
+                return redirect("core:checkout")
+            except ObjectDoesNotExist:
+                messages.info(request, "You do not have the active orders")
+        else:
+            messages.info(request, "This coupon does not exist")
+            return redirect("core:checkout")
+    return None

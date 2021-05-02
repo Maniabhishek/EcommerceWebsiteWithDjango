@@ -22,5 +22,5 @@ urlpatterns = [
     path('remove-from-cart/<slug>', remove_from_cart, name='remove-from-cart'),
     path('remove-single-item/<slug>', remove_single_item_from_cart,
          name='removing-single-item'),
-    path('add_coupon/<code>', add_coupon, name='add_coupon')
+    path('add_coupon/', add_coupon, name='add_coupon')
 ]
