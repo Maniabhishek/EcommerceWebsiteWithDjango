@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib import messages
 from django_countries.fields import CountryField
 PAYMENT_CHOICES = (
     ('S', 'stripe'),
@@ -32,3 +33,11 @@ class CouponForm(forms.Form):
         'aria-label': 'Recipient\'s username',
         'aria-describedby': "basic-addon2"
     }))
+
+
+class RefundForm(forms.Form):
+    ref_code = forms.CharField()
+    message = forms.CharField(widget=forms.Textarea(attrs={
+        'row': 3
+    }))
+    email = forms.EmailField()
