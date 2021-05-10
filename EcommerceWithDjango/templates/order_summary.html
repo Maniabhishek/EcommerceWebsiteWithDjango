@@ -44,7 +44,9 @@
                   </td>
                 </tr>
                 {% endfor %}  
-                {% if object.coupon %}
+                
+                {% if object.coupon.code %}
+                <h4 style="color: white;">Coupon exists</h4>
                 <tr>
                   <td style="color: white;" colspan="4" > Use coupon {{object.coupon.code}}</td>
                   <td style="color: white;"  >{{object.coupon.amount}}</td>

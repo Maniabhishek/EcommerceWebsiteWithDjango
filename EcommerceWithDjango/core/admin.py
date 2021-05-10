@@ -50,12 +50,13 @@ class AddressAdmin(admin.ModelAdmin):
         'user',
         'streetAddress',
         'apartmentAddress',
-        'countries',
+        # 'countries',
         'zip',
         'address_type',
-        'default',
+        'default'
     ]
-    list_filter = ['default', 'address_type', 'default']
+    list_filter = ['default', 'address_type']
+    search_fields = ['user', 'street_address', 'apartmentAddress']
 
 
 admin.site.register(Item)

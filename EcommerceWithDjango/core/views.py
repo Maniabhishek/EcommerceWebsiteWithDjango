@@ -262,7 +262,6 @@ def add_to_cart(request, slug):
             return redirect("core:orderSummary")
 
         else:
-
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart")
             return redirect("core:orderSummary")

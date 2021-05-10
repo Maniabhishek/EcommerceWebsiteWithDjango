@@ -82,13 +82,16 @@ class BillingAddress(models.Model):
                              on_delete=models.CASCADE)
     streetAddress = models.CharField(max_length=100)
     apartmentAddress = models.CharField(max_length=50)
-    countries = CountryField(multiple=True)
+    countries = CountryField(multiple=True, blank=True)
     zip = models.CharField(max_length=100)
     address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
     default = models.BooleanField(default=False)
 
     def __str__(self):
         return self.streetAddress
+
+    class Meta:
+        verbose_name_plural = 'BillingAddresses'
 
 
 class Order(models.Model):
@@ -119,7 +122,7 @@ class Order(models.Model):
         total = 0
         for order_items in self.items.all():
             total += order_items.get_final_price()
-        total -= self.coupon.amount
+        # total -= self.coupon.amount
         return total
 
 
