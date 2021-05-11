@@ -94,6 +94,14 @@ class BillingAddress(models.Model):
         verbose_name_plural = 'BillingAddresses'
 
 
+class Coupon(models.Model):
+    code = models.CharField(max_length=15)
+    amount = models.FloatField()
+
+    def __str__(self):
+        return self.code
+
+
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
@@ -108,7 +116,7 @@ class Order(models.Model):
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     coupon = models.ForeignKey(
-        'Coupon', on_delete=models.SET_NULL, null=True, blank=True)
+        Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
@@ -122,7 +130,8 @@ class Order(models.Model):
         total = 0
         for order_items in self.items.all():
             total += order_items.get_final_price()
-        # total -= self.coupon.amount
+        if self.coupon:
+            total -= self.coupon.amount
         return total
 
 
@@ -135,14 +144,6 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.user.username
-
-
-class Coupon(models.Model):
-    code = models.CharField(max_length=15)
-    amount = models.FloatField()
-
-    def __str__(self):
-        return self.code
 
 
 class Refund(models.Model):

@@ -218,7 +218,7 @@ class OrderSummaryView(LoginRequiredMixin, View):
         try:
             print("in order summary ")
             order = Order.objects.get(user=self.request.user, ordered=False)
-            context = {'object': order}
+            context = {'object': order, 'coupon': Coupon}
             return render(self.request, 'order_summary.html', context)
         except ObjectDoesNotExist:
             messages.error(self.request, "You do not have an active order")
